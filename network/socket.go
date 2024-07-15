@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"time"
 )
 
 var upgrader = &websocket.Upgrader{ReadBufferSize: types.SocketBufferSize, WriteBufferSize: types.MessageBufferSize, CheckOrigin: func(r *http.Request) bool { return true }}
@@ -37,6 +38,32 @@ func NewRoom() *Room {
 		Join:    make(chan *Client),
 		Leave:   make(chan *Client),
 		Clients: make(map[*Client]bool),
+	}
+}
+
+func (c *Client) Read() {
+	for {
+		var msg *message
+		err := c.Socket.ReadJSON(&msg)
+		if err != nil {
+			panic(err)
+		} else {
+			msg.Time = time.Now().Unix()
+			msg.Name = c.Name
+
+			c.Room.Forward <- msg
+		}
+	}
+}
+
+func (c *Client) Write() {
+	defer c.Socket.Close()
+
+	for msg := range c.Send {
+		err := c.Socket.WriteJSON(msg)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -78,4 +105,8 @@ func (r *Room) SocketServe(c *gin.Context) {
 	r.Join <- client
 
 	defer func() { r.Leave <- client }()
+
+	go client.Write()
+
+	client.Read()
 }
