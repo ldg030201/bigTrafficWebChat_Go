@@ -1,6 +1,7 @@
 package network
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -13,6 +14,16 @@ func NewServer() *Network {
 	n := &Network{
 		engin: gin.New(),
 	}
+
+	n.engin.Use(gin.Logger())
+	n.engin.Use(gin.Recovery())
+	n.engin.Use(cors.New(cors.Config{
+		AllowWebSockets:  true,
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT"},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: true,
+	}))
 
 	return n
 }
