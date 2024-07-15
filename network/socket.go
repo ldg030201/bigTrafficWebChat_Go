@@ -40,9 +40,42 @@ func NewRoom() *Room {
 	}
 }
 
+func (r *Room) RunInit() {
+	for {
+		select {
+		case client := <-r.Join:
+			r.Clients[client] = true
+		case client := <-r.Leave:
+			r.Clients[client] = false
+			close(client.Send)
+			delete(r.Clients, client)
+		case msg := <-r.Forward:
+			for client := range r.Clients {
+				client.Send <- msg
+			}
+		}
+	}
+}
+
 func (r *Room) SocketServe(c *gin.Context) {
 	socket, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		panic(err)
 	}
+
+	userCookie, err := c.Request.Cookie("auth")
+	if err != nil {
+		panic(err)
+	}
+
+	client := &Client{
+		Socket: socket,
+		Send:   make(chan *message, types.MessageBufferSize),
+		Room:   r,
+		Name:   userCookie.Value,
+	}
+
+	r.Join <- client
+
+	defer func() { r.Leave <- client }()
 }
