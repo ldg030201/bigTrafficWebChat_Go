@@ -1,23 +1,25 @@
 package network
 
 import (
+	"chat_server/repository"
+	"chat_server/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
-type Network struct {
+type Server struct {
 	engin *gin.Engine
 }
 
-func NewServer() *Network {
-	n := &Network{
+func NewServer(service *service.Service, repository *repository.Repository, port string) *Server {
+	s := &Server{
 		engin: gin.New(),
 	}
 
-	n.engin.Use(gin.Logger())
-	n.engin.Use(gin.Recovery())
-	n.engin.Use(cors.New(cors.Config{
+	s.engin.Use(gin.Logger())
+	s.engin.Use(gin.Recovery())
+	s.engin.Use(cors.New(cors.Config{
 		AllowWebSockets:  true,
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT"},
@@ -25,15 +27,12 @@ func NewServer() *Network {
 		AllowCredentials: true,
 	}))
 
-	r := NewRoom()
-	go r.RunInit()
+	registerServer(s.engin)
 
-	n.engin.GET("/room", r.SocketServe)
-
-	return n
+	return s
 }
 
-func (n *Network) StartServer() error {
+func (n *Server) StartServer() error {
 	log.Println("서버 시작")
 	return n.engin.Run(":8080")
 }

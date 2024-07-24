@@ -1,19 +1,18 @@
 package network
 
 import (
-	"chat_server/types"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
 	"time"
 )
 
-var upgrader = &websocket.Upgrader{ReadBufferSize: types.SocketBufferSize, WriteBufferSize: types.MessageBufferSize, CheckOrigin: func(r *http.Request) bool { return true }}
+//var upgrader = &websocket.Upgrader{ReadBufferSize: types.SocketBufferSize, WriteBufferSize: types.MessageBufferSize, CheckOrigin: func(r *http.Request) bool { return true }}
 
 type message struct {
 	Name    string
 	Message string
-	Time    int64
+	When    int64
 }
 
 type Room struct {
@@ -48,7 +47,7 @@ func (c *Client) Read() {
 		if err != nil {
 			panic(err)
 		} else {
-			msg.Time = time.Now().Unix()
+			msg.When = time.Now().Unix()
 			msg.Name = c.Name
 
 			c.Room.Forward <- msg
@@ -67,7 +66,7 @@ func (c *Client) Write() {
 	}
 }
 
-func (r *Room) RunInit() {
+func (r *Room) Run() {
 	for {
 		select {
 		case client := <-r.Join:
@@ -84,22 +83,33 @@ func (r *Room) RunInit() {
 	}
 }
 
-func (r *Room) SocketServe(c *gin.Context) {
-	socket, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+const (
+	SocketBufferSize  = 1024 * 16
+	messageBufferSize = 256
+)
+
+var upgrader = &websocket.Upgrader{ReadBufferSize: SocketBufferSize, WriteBufferSize: messageBufferSize}
+
+func (r *Room) ServeHTTP(c *gin.Context) {
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
+
+	Socket, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	userCookie, err := c.Request.Cookie("auth")
+	authCookie, err := c.Request.Cookie("auth")
 	if err != nil {
 		panic(err)
 	}
 
 	client := &Client{
-		Socket: socket,
-		Send:   make(chan *message, types.MessageBufferSize),
+		Socket: Socket,
+		Send:   make(chan *message, messageBufferSize),
 		Room:   r,
-		Name:   userCookie.Value,
+		Name:   authCookie.Value,
 	}
 
 	r.Join <- client

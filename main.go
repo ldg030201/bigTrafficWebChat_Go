@@ -2,9 +2,10 @@ package main
 
 import (
 	"chat_server/config"
+	"chat_server/network"
 	"chat_server/repository"
+	"chat_server/service"
 	"flag"
-	"fmt"
 )
 
 var pathFlag = flag.String("config", "./config.toml", "config set")
@@ -18,9 +19,7 @@ func main() {
 	if rep, err := repository.NewRepository(c); err != nil {
 		panic(err)
 	} else {
-		fmt.Println(rep)
+		n := network.NewServer(service.NewService(rep), rep, *port)
+		n.StartServer()
 	}
-
-	/*n := network.NewServer()
-	n.StartServer()*/
 }
