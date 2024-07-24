@@ -2,7 +2,9 @@ package repository
 
 import (
 	"chat_server/config"
+	"chat_server/types/schema"
 	"database/sql"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -13,6 +15,12 @@ type Repository struct {
 	db *sql.DB
 }
 
+const (
+	room       = "bigTrafficWebChat.room"
+	chat       = "bigTrafficWebChat.chat"
+	serverInfo = "bigTrafficWebChat.serverInfo"
+)
+
 func NewRepository(cfg *config.Config) (*Repository, error) {
 	r := &Repository{cfg: cfg}
 	var err error
@@ -22,4 +30,94 @@ func NewRepository(cfg *config.Config) (*Repository, error) {
 	} else {
 		return r, nil
 	}
+}
+
+func (s *Repository) GetChatList(roomName string) ([]*schema.Chat, error) {
+	qs := query([]string{"SELECT * FROM", chat, "WHERE room = ? ORDER BY `when` DESC LIMIT 10"})
+
+	if cursor, err := s.db.Query(qs); err != nil {
+		return nil, err
+	} else {
+		defer cursor.Close()
+
+		var result []*schema.Chat
+
+		for cursor.Next() {
+			d := new(schema.Chat)
+
+			if err = cursor.Scan(
+				&d.ID,
+				&d.Room,
+				&d.Message,
+				&d.When,
+			); err != nil {
+				return nil, err
+			} else {
+				result = append(result, d)
+			}
+		}
+
+		if len(result) == 0 {
+			return []*schema.Chat{}, nil
+		} else {
+			return result, nil
+		}
+	}
+
+}
+
+func (s *Repository) MakeRoom(name string) error {
+	_, err := s.db.Exec("INSERT INTO bigTrafficWebChat.room(name) VALUES(?)", name)
+	return err
+}
+
+func (s *Repository) RoomList() ([]*schema.Room, error) {
+	qs := query([]string{"SELECT * FROM", room})
+
+	if cursor, err := s.db.Query(qs); err != nil {
+		return nil, err
+	} else {
+		defer cursor.Close()
+
+		var result []*schema.Room
+
+		for cursor.Next() {
+			d := new(schema.Room)
+
+			if err = cursor.Scan(
+				&d.ID,
+				&d.Name,
+				&d.CreateAt,
+				&d.UpdateAt,
+			); err != nil {
+				return nil, err
+			} else {
+				result = append(result, d)
+			}
+		}
+
+		if len(result) == 0 {
+			return []*schema.Room{}, nil
+		} else {
+			return result, nil
+		}
+	}
+}
+
+func (s *Repository) Room(name string) (*schema.Room, error) {
+	d := new(schema.Room)
+	qs := query([]string{"SELECT * FROM", room, "WHERE name = ?"})
+
+	err := s.db.QueryRow(qs, name).Scan(
+		&d.ID,
+		&d.Name,
+		&d.CreateAt,
+		&d.UpdateAt,
+	)
+
+	return d, err
+}
+
+func query(qs []string) string {
+	return strings.Join(qs, "") + ";"
 }

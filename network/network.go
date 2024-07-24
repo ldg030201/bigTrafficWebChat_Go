@@ -10,11 +10,20 @@ import (
 
 type Server struct {
 	engin *gin.Engine
+
+	service    *service.Service
+	repository *repository.Repository
+
+	port string
+	ip   string
 }
 
 func NewServer(service *service.Service, repository *repository.Repository, port string) *Server {
 	s := &Server{
-		engin: gin.New(),
+		engin:      gin.New(),
+		service:    service,
+		repository: repository,
+		port:       port,
 	}
 
 	s.engin.Use(gin.Logger())
@@ -32,7 +41,7 @@ func NewServer(service *service.Service, repository *repository.Repository, port
 	return s
 }
 
-func (n *Server) StartServer() error {
+func (s *Server) StartServer() error {
 	log.Println("서버 시작")
-	return n.engin.Run(":8080")
+	return s.engin.Run(s.port)
 }
