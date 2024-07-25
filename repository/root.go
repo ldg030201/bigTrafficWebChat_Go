@@ -44,7 +44,7 @@ func (s *Repository) InsertChatting(user, message, roomName string) error {
 func (s *Repository) GetChatList(roomName string) ([]*schema.Chat, error) {
 	qs := query([]string{"SELECT * FROM", chat, "WHERE room = ? ORDER BY `when` DESC LIMIT 10"})
 
-	if cursor, err := s.db.Query(qs); err != nil {
+	if cursor, err := s.db.Query(qs, roomName); err != nil {
 		return nil, err
 	} else {
 		defer cursor.Close()
@@ -57,6 +57,7 @@ func (s *Repository) GetChatList(roomName string) ([]*schema.Chat, error) {
 			if err = cursor.Scan(
 				&d.ID,
 				&d.Room,
+				&d.Name,
 				&d.Message,
 				&d.When,
 			); err != nil {
@@ -72,7 +73,6 @@ func (s *Repository) GetChatList(roomName string) ([]*schema.Chat, error) {
 			return result, nil
 		}
 	}
-
 }
 
 func (s *Repository) MakeRoom(name string) error {

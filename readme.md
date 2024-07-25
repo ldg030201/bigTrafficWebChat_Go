@@ -11,7 +11,7 @@ CREATE TABLE `room` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='룸 데이터';
 
-CREATE TABLE `chatting` (
+CREATE TABLE `chat` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '채팅 고유 ID',
     `room` varchar(255) NOT NULL COMMENT '룸 고유 ID',
     `name` varchar(255) NOT NULL COMMENT '송신자 이름',
