@@ -1,6 +1,7 @@
 package network
 
 import (
+	"chat_server/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"net/http"
@@ -10,9 +11,10 @@ import (
 //var upgrader = &websocket.Upgrader{ReadBufferSize: types.SocketBufferSize, WriteBufferSize: types.MessageBufferSize, CheckOrigin: func(r *http.Request) bool { return true }}
 
 type message struct {
-	Name    string
-	Message string
-	When    int64
+	Name    string `json:"name"`
+	Message string `json:"message"`
+	When    int64  `json:"when"`
+	Room    string `json:"room"`
 }
 
 type Room struct {
@@ -22,21 +24,24 @@ type Room struct {
 	Leave chan *Client
 
 	Clients map[*Client]bool
+
+	service *service.Service
 }
 
 type Client struct {
 	Send   chan *message
 	Room   *Room
-	Name   string
+	Name   string `json:"name"`
 	Socket *websocket.Conn
 }
 
-func NewRoom() *Room {
+func NewRoom(service *service.Service) *Room {
 	return &Room{
 		Forward: make(chan *message),
 		Join:    make(chan *Client),
 		Leave:   make(chan *Client),
 		Clients: make(map[*Client]bool),
+		service: service,
 	}
 }
 
@@ -76,6 +81,8 @@ func (r *Room) Run() {
 			close(client.Send)
 			delete(r.Clients, client)
 		case msg := <-r.Forward:
+			go r.service.InsertChatting(msg.Name, msg.Message, msg.Room)
+
 			for client := range r.Clients {
 				client.Send <- msg
 			}

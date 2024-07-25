@@ -61,4 +61,9 @@ func registerServer(server *Server) {
 	server.engin.POST("/make-room", a.makeRoom)
 	server.engin.GET("/room", a.room)
 	server.engin.GET("/enter-room", a.enterRoom)
+
+	r := NewRoom(server.service)
+	go r.Run()
+
+	server.engin.GET("/room-chat", r.ServeHTTP)
 }

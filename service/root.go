@@ -51,3 +51,10 @@ func (s *Service) Room(name string) (*schema.Room, error) {
 		return res, nil
 	}
 }
+
+func (s *Service) InsertChatting(user, message, roomName string) {
+	if err := s.repository.InsertChatting(user, message, roomName); err != nil {
+		log.Println("InsertChatting 에러", "err", err.Error())
+	}
+
+}
