@@ -25,4 +25,7 @@ CREATE TABLE `serverinfo` (
     `avaliable` tinyint(1) NOT NULL COMMENT '서버 온 오프 여부',
     PRIMARY KEY (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='서버정보';
+
+
+ALTER TABLE room ADD CONSTRAINT room_unique UNIQUE KEY (name);
 ```
