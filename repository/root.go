@@ -16,9 +16,9 @@ type Repository struct {
 }
 
 const (
-	room       = "bigTrafficWebChat.room"
-	chat       = "bigTrafficWebChat.chat"
-	serverInfo = "bigTrafficWebChat.serverInfo"
+	room       = " bigTrafficWebChat.room "
+	chat       = " bigTrafficWebChat.chat "
+	serverInfo = " bigTrafficWebChat.serverInfo "
 )
 
 func NewRepository(cfg *config.Config) (*Repository, error) {

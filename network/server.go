@@ -54,16 +54,11 @@ func (a api) enterRoom(c *gin.Context) {
 	}
 }
 
-func registerServer(server *Server) *api {
+func registerServer(server *Server) {
 	a := &api{server: server}
 
 	server.engin.GET("/room-list", a.roomList)
 	server.engin.POST("/make-room", a.makeRoom)
 	server.engin.GET("/room", a.room)
 	server.engin.GET("/enter-room", a.enterRoom)
-
-	r := NewRoom()
-	go r.Run()
-
-	return a
 }

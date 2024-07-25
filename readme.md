@@ -1,6 +1,8 @@
 # DDL
 
 ```SQL
+CREATE DATABASE `bigtrafficwebchat` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+
 CREATE TABLE `room` (
     `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '룸 고유 ID',
     `name` varchar(255) NOT NULL COMMENT '룸 이름',
