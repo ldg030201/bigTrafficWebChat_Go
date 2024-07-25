@@ -65,7 +65,5 @@ func registerServer(server *Server) *api {
 	r := NewRoom()
 	go r.Run()
 
-	server.engin.GET("/room", r.ServeHTTP)
-
 	return a
 }
