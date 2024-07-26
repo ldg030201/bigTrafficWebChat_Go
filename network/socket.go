@@ -4,6 +4,7 @@ import (
 	"chat_server/service"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 	"time"
 )
@@ -50,7 +51,7 @@ func (c *Client) Read() {
 		var msg *message
 		err := c.Socket.ReadJSON(&msg)
 		if err != nil {
-			panic(err)
+			log.Println("에러", "err", err.Error())
 		} else {
 			msg.When = time.Now().Unix()
 			msg.Name = c.Name
@@ -66,7 +67,7 @@ func (c *Client) Write() {
 	for msg := range c.Send {
 		err := c.Socket.WriteJSON(msg)
 		if err != nil {
-			panic(err)
+			log.Println("에러", "err", err.Error())
 		}
 	}
 }
@@ -104,12 +105,12 @@ func (r *Room) ServeHTTP(c *gin.Context) {
 
 	Socket, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		panic(err)
+		log.Println("에러", "err", err.Error())
 	}
 
 	authCookie, err := c.Request.Cookie("auth")
 	if err != nil {
-		panic(err)
+		log.Println("에러", "err", err.Error())
 	}
 
 	client := &Client{

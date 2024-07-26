@@ -6,6 +6,7 @@ import (
 	"chat_server/repository"
 	"chat_server/service"
 	"flag"
+	"log"
 )
 
 var pathFlag = flag.String("config", "./config.toml", "config set")
@@ -17,7 +18,7 @@ func main() {
 	c := config.NewConfig(*pathFlag)
 
 	if rep, err := repository.NewRepository(c); err != nil {
-		panic(err)
+		log.Println("에러", "err", err.Error())
 	} else {
 		n := network.NewServer(service.NewService(rep), *port)
 		n.StartServer()

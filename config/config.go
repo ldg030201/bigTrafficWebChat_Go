@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/pelletier/go-toml/v2"
+	"log"
 	"os"
 )
 
@@ -21,9 +22,11 @@ func NewConfig(path string) *Config {
 	c := new(Config)
 
 	if f, err := os.Open(path); err != nil {
-		panic(err)
+		log.Println("에러", "err", err.Error())
+		return nil
 	} else if err = toml.NewDecoder(f).Decode(c); err != nil {
-		panic(err)
+		log.Println("에러", "err", err.Error())
+		return nil
 	} else {
 		return c
 	}

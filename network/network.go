@@ -66,7 +66,7 @@ func (s *Server) StartServer() error {
 
 func (s *Server) setServerInfo() {
 	if addrs, err := net.InterfaceAddrs(); err != nil {
-		panic(err.Error())
+		log.Println("에러", "err", err.Error())
 	} else {
 		var ip net.IP
 
@@ -83,7 +83,7 @@ func (s *Server) setServerInfo() {
 			panic("no ip")
 		} else {
 			if err = s.service.ServerSet(ip.String()+s.port, true); err != nil {
-				panic(err.Error())
+				log.Println("에러", "err", err.Error())
 			} else {
 				s.ip = ip.String()
 			}
