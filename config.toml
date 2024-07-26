@@ -1,3 +1,8 @@
 [db]
 database = "mysql"
 url = "root:6745@tcp(localhost:3307)/bigTrafficWebChat?multiStatements=true&parseTime=true"
+
+
+[kafka]
+URL="localhost:9292"
+ClientID="chat-producer-1"
