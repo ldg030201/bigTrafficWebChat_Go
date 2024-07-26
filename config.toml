@@ -4,5 +4,5 @@ url = "root:6745@tcp(localhost:3307)/bigTrafficWebChat?multiStatements=true&pars
 
 
 [kafka]
-URL="localhost:9292"
+URL="localhost:9092"
 ClientID="chat-producer-1"

@@ -3,6 +3,7 @@ package service
 import (
 	"chat_server/repository"
 	"chat_server/types/schema"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"log"
 )
 
@@ -66,4 +67,8 @@ func (s *Service) InsertChatting(user, message, roomName string) {
 		log.Println("InsertChatting 에러", "err", err.Error())
 	}
 
+}
+
+func (s *Service) PublishEvent(topic string, value []byte, ch chan kafka.Event) (kafka.Event, error) {
+	return s.repository.Kafka.PublishEvent(topic, value, ch)
 }
