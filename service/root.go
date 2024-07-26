@@ -3,6 +3,7 @@ package service
 import (
 	"chat_server/repository"
 	"chat_server/types/schema"
+	"encoding/json"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"log"
 )
@@ -71,4 +72,22 @@ func (s *Service) InsertChatting(user, message, roomName string) {
 
 func (s *Service) PublishEvent(topic string, value []byte, ch chan kafka.Event) (kafka.Event, error) {
 	return s.repository.Kafka.PublishEvent(topic, value, ch)
+}
+
+func (s *Service) PublishServerStatusEvent(ip string, status bool) {
+	type ServerInfoEvent struct {
+		IP     string
+		Status bool
+	}
+
+	e := &ServerInfoEvent{IP: ip, Status: status}
+	ch := make(chan kafka.Event)
+
+	if v, err := json.Marshal(e); err != nil {
+		log.Printf("json marshal error")
+	} else if result, err := s.service.PublishEvent("chat", v, ch); err != nil {
+		log.Println("end event kafka error")
+	} else {
+		log.Println("success event", result)
+	}
 }

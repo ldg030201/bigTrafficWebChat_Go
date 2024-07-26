@@ -2,10 +2,8 @@ package network
 
 import (
 	"chat_server/service"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-json"
 	"log"
 	"net"
 	"os"
@@ -57,21 +55,7 @@ func (s *Server) StartServer() error {
 			log.Printf("server error")
 		}
 
-		type ServerInfoEvent struct {
-			IP     string
-			Status bool
-		}
-
-		e := &ServerInfoEvent{IP: s.ip + s.port, Status: false}
-		ch := make(chan kafka.Event)
-
-		if v, err := json.Marshal(e); err != nil {
-			log.Printf("json marshal error")
-		} else if result, err := s.service.PublishEvent("chat", v, ch); err != nil {
-			log.Println("end event kafka error")
-		} else {
-			log.Println("success event", result)
-		}
+		s.service.PublishServerStatusEvent(s.ip+s.port, false)
 
 		os.Exit(1)
 	}()
@@ -103,6 +87,8 @@ func (s *Server) setServerInfo() {
 			} else {
 				s.ip = ip.String()
 			}
+
+			s.service.PublishServerStatusEvent(s.ip+s.port, true)
 		}
 	}
 }
