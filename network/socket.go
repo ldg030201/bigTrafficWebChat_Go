@@ -91,7 +91,7 @@ func (r *Room) Run() {
 }
 
 const (
-	SocketBufferSize  = 1024 * 16
+	SocketBufferSize  = 1024 * 4
 	messageBufferSize = 256
 )
 
