@@ -85,7 +85,7 @@ func (s *Service) PublishServerStatusEvent(ip string, status bool) {
 
 	if v, err := json.Marshal(e); err != nil {
 		log.Printf("json marshal error")
-	} else if result, err := s.service.PublishEvent("chat", v, ch); err != nil {
+	} else if result, err := s.PublishEvent("chat", v, ch); err != nil {
 		log.Println("end event kafka error")
 	} else {
 		log.Println("success event", result)
