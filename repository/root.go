@@ -25,6 +25,11 @@ const (
 	serverInfo = " bigTrafficWebChat.serverInfo "
 )
 
+func (s *Repository) ServerSet(ip string, available bool) error {
+	_, err := s.db.Exec("INSERT INTO serverInfo(`ip`, `available`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `available` = VALUES(`available`)", ip, available)
+	return err
+}
+
 func NewRepository(cfg *config.Config) (*Repository, error) {
 	r := &Repository{cfg: cfg}
 	var err error

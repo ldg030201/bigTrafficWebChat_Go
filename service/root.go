@@ -16,6 +16,15 @@ func NewService(repository *repository.Repository) *Service {
 	return s
 }
 
+func (s *Service) ServerSet(ip string, available bool) error {
+	if err := s.repository.ServerSet(ip, available); err != nil {
+		log.Println("ServerSet err:", err)
+		return err
+	} else {
+		return nil
+	}
+}
+
 func (s *Service) EnterRoom(roomName string) ([]*schema.Chat, error) {
 	if res, err := s.repository.GetChatList(roomName); err != nil {
 		log.Println("GetChatList 에러", "err", err.Error())
